@@ -19,7 +19,7 @@ class RookieText2dataTool(Tool):
             database=tool_parameters['db_name'],
             username=tool_parameters['username'],
             password=tool_parameters['password'],
-            table_names=tool_parameters['table_names'],
+            table_names=tool_parameters.get('table_names'),
             schema_name=tool_parameters.get('schema_name')
         )
         with_comment = tool_parameters.get('with_comment', False)

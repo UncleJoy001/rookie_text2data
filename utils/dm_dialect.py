@@ -5,11 +5,9 @@
 注意: 达梦官方提供 sqlalchemy_dm 方言包,但需要单独安装
 这是一个简化的实现,用于基本的数据库连接和查询
 """
-import re
-from sqlalchemy import types as sqltypes
 from sqlalchemy.engine import default
 from sqlalchemy.sql import compiler
-
+from sqlalchemy import types as sqltypes, text
 
 class DMCompiler(compiler.SQLCompiler):
     """达梦 SQL 编译器"""
@@ -98,50 +96,50 @@ class DMDialect(default.DefaultDialect):
 
     def get_schema_names(self, connection, **kw):
         """获取所有 schema 名称"""
-        cursor = connection.execute("""
+        cursor = connection.execute(text("""
             SELECT DISTINCT OWNER
             FROM ALL_TAB_COLUMNS
             ORDER BY OWNER
-        """)
+        """))
         return [row[0] for row in cursor]
 
     def has_table(self, connection, table_name, schema=None, **kw):
         """检查表是否存在"""
         schema = schema or self.default_schema_name
-        cursor = connection.execute("""
+        cursor = connection.execute(text("""
             SELECT TABLE_NAME
             FROM ALL_TABLES
             WHERE OWNER = :schema
             AND TABLE_NAME = :table_name
-        """, {'schema': schema.upper(), 'table_name': table_name.upper()})
+        """), {'schema': schema.upper(), 'table_name': table_name.upper()})
         return cursor.fetchone() is not None
 
     def get_table_names(self, connection, schema=None, **kw):
         """获取所有表名"""
         schema = schema or self.default_schema_name
-        cursor = connection.execute("""
+        cursor = connection.execute(text("""
             SELECT TABLE_NAME
             FROM ALL_TABLES
             WHERE OWNER = :schema
             ORDER BY TABLE_NAME
-        """, {'schema': schema.upper()})
+        """), {'schema': schema.upper()})
         return [row[0] for row in cursor]
 
     def get_view_names(self, connection, schema=None, **kw):
         """获取所有视图名"""
         schema = schema or self.default_schema_name
-        cursor = connection.execute("""
+        cursor = connection.execute(text("""
             SELECT VIEW_NAME
             FROM ALL_VIEWS
             WHERE OWNER = :schema
             ORDER BY VIEW_NAME
-        """, {'schema': schema.upper()})
+        """), {'schema': schema.upper()})
         return [row[0] for row in cursor]
 
     def get_columns(self, connection, table_name, schema=None, **kw):
         """获取表的所有列信息"""
         schema = schema or self.default_schema_name
-        cursor = connection.execute("""
+        cursor = connection.execute(text("""
             SELECT
                 COLUMN_NAME,
                 DATA_TYPE,
@@ -153,7 +151,7 @@ class DMDialect(default.DefaultDialect):
             WHERE OWNER = :schema
             AND TABLE_NAME = :table_name
             ORDER BY COLUMN_ID
-        """, {'schema': schema.upper(), 'table_name': table_name.upper()})
+        """), {'schema': schema.upper(), 'table_name': table_name.upper()})
 
         columns = []
         for row in cursor:

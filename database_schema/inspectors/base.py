@@ -37,9 +37,6 @@ class BaseInspector(ABC):
             raise ValueError(f"请检查IP/Port")
         except Exception as e:
             raise ValueError(f"建立数据库连接时发生错误: {str(e)}")
-        finally:
-            if self.engine in locals():
-                self.engine.dispose()
         self.schema_name = schema_name  # 所有子类都会继承这个属性
     
     @abstractmethod

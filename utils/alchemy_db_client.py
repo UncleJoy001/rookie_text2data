@@ -239,7 +239,7 @@ def execute_sql(
     try:
         # 记录连接获取
         log_connection_status(engine_key, "acquire")
-        
+
         with engine.begin() as conn:
             # 显式设置schema（部分数据库需要）
             if db_type.lower() in ('postgresql', 'gaussdb', 'kingbase') and schema:
@@ -274,7 +274,7 @@ def _get_driver(db_type: str) -> str:
         'sqlserver': 'pymssql',
         'postgresql': 'psycopg2',
         'gaussdb': 'psycopg',  # 仅 GaussDB 使用 psycopg3，避免版本解析问题
-        'dm': 'oracledb',  # 达梦数据库使用 oracledb 驱动（兼容 Oracle 协议）
+        'dm': 'dmPython',  # 达梦数据库使用 oracledb 驱动（兼容 Oracle 协议）
         'kingbase': 'psycopg2'  # 人大金仓使用 psycopg2 驱动（兼容 PostgreSQL 协议）
     }
     return drivers.get(db_type.lower(), '')
@@ -305,7 +305,7 @@ def _build_connection_uri(
     elif db_type == 'dm':
         # 达梦数据库使用 Oracle 驱动（兼容 Oracle 协议）
         # 格式：oracle+oracledb://user:pass@host:port/?service_name=SYSDBA
-        return f"oracle+{driver}://{username}:{password}@{host}:{port}/?service_name=SYSDBA"
+        return f"{db_type}+{driver}://{username}:{password}@{host}:{port}/{database}"
 
     return f"{db_type}+{driver}://{username}:{password}@{host}:{port}/{database}"
 
